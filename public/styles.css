@@ -43,7 +43,7 @@ main {
 }
 
 footer {
-    background-color: #ff6f00;
+    background-color: #002c5f;
     color: white;
     text-align: center;
     padding: 1rem;
@@ -51,4 +51,34 @@ footer {
     bottom: 0;
     width: 100%;
     font-size: 0.9rem;
+}
+
+/* フォーム全体の中央寄せと整形 */
+#contact-form,
+#login-form {
+    margin: 0 auto;
+}
+
+#contact-form {
+    max-width: 600px;
+}
+
+#login-form {
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
 }
