@@ -53,10 +53,18 @@ footer {
     font-size: 0.9rem;
 }
 
-/* ログインフォームの中央寄せと整形 */
+/* フォーム全体の中央寄せと整形 */
+#contact-form,
+#login-form {
+    margin: 0 auto;
+}
+
+#contact-form {
+    max-width: 600px;
+}
+
 #login-form {
     max-width: 400px;
-    margin: 0 auto;
 }
 
 .form-group {
@@ -68,7 +76,8 @@ footer {
     margin-bottom: 0.5rem;
 }
 
-.form-group input {
+.form-group input,
+.form-group textarea {
     width: 100%;
     padding: 0.5rem;
     box-sizing: border-box;
