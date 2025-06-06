@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天気予報 - githubハンズオン</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .weather-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .weather-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .weather-header h2 {
+            margin: 0;
+            font-size: 2em;
+        }
+        
+        .weather-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .weather-main {
+            text-align: center;
+        }
+        
+        .temperature {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .weather-description {
+            font-size: 1.2em;
+            text-transform: capitalize;
+        }
+        
+        .weather-details {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .weather-details h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        @media (max-width: 600px) {
+            .weather-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>天気予報</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">ホーム</a></li>
+                <li><a href="login.html">ログイン</a></li>
+                <li><a href="contact.html">問い合わせ</a></li>
+                <li><a href="#">天気</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="weather-container">
+            <div class="weather-header">
+                <h2>福岡市の天気</h2>
+                <p id="current-date"></p>
+            </div>
+            
+            <div id="weather-content">
+                <div class="loading">天気情報を読み込み中...</div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="refresh-btn" onclick="fetchWeather()">更新</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 XYZ Inc.</p>
+    </footer>
+
+    <script>
+        // 現在の日付を表示
+        function updateDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long' 
+            };
+            document.getElementById('current-date').textContent = 
+                now.toLocaleDateString('ja-JP', options);
+        }
+
+        // 天気情報を取得
+        async function fetchWeather() {
+            const weatherContent = document.getElementById('weather-content');
+            weatherContent.innerHTML = '<div class="loading">天気情報を読み込み中...</div>';
+
+            try {
+                // OpenWeatherMap API (無料版) - 福岡市の座標
+                const lat = 33.5904;
+                const lon = 130.4017;
+                const apiKey = 'YOUR_API_KEY'; // 実際のAPIキーが必要
+                
+                // APIキーが設定されていない場合はダミーデータを表示
+                if (apiKey === 'YOUR_API_KEY') {
+                    showDummyWeather();
+                    return;
+                }
+
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=ja`
+                );
+
+                if (!response.ok) {
+                    throw new Error('天気情報の取得に失敗しました');
+                }
+
+                const data = await response.json();
+                displayWeather(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                weatherContent.innerHTML = 
+                    '<div class="error">天気情報の取得に失敗しました。しばらく後にもう一度お試しください。</div>';
+            }
+        }
+
+        // ダミーの天気データを表示 (デモ用)
+        function showDummyWeather() {
+            const dummyData = {
+                name: '福岡市',
+                main: {
+                    temp: 18,
+                    feels_like: 16,
+                    humidity: 65,
+                    pressure: 1013
+                },
+                weather: [{
+                    main: 'Clouds',
+                    description: '曇り'
+                }],
+                wind: {
+                    speed: 3.2
+                },
+                visibility: 10000
+            };
+            displayWeather(dummyData);
+        }
+
+        // 天気情報を画面に表示
+        function displayWeather(data) {
+            const weatherContent = document.getElementById('weather-content');
+            
+            const html = `
+                <div class="weather-info">
+                    <div class="weather-main">
+                        <div class="temperature">${Math.round(data.main.temp)}°C</div>
+                        <div class="weather-description">${data.weather[0].description}</div>
+                        <div>体感温度: ${Math.round(data.main.feels_like)}°C</div>
+                    </div>
+                    <div class="weather-details">
+                        <h3>詳細情報</h3>
+                        <div class="detail-item">
+                            <span>湿度:</span>
+                            <span>${data.main.humidity}%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>気圧:</span>
+                            <span>${data.main.pressure} hPa</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>風速:</span>
+                            <span>${data.wind.speed} m/s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>視界:</span>
+                            <span>${(data.visibility / 1000).toFixed(1)} km</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            weatherContent.innerHTML = html;
+        }
+
+        // ページ読み込み時に実行
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDate();
+            fetchWeather();
+        });
+    </script>
+</body>
+</html>
